@@ -1,0 +1,63 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+
+# Development files
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.tox/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Documentation
+*.md
+docs/
+
+# Configuration
+.env
+.env.*
+
+# Testing
+tests/
+
+# Development tools
+justfile
+.serena/
+.claude/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/

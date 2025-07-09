@@ -1,0 +1,59 @@
+[project]
+name = "jobscheduler"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "docker>=7.1.0",
+  "fastapi>=0.116.0",
+  "uvicorn>=0.35.0",
+  "pydantic>=2.11.7",
+  "pydantic-settings>=2.10.1",
+  "httpx>=0.26.0",
+  "psutil>=5.9.8",
+  "GPUtil>=1.4.0",
+  "redis>=6.2.0",
+  "click>=8.2.1",
+  "rich>=14.0.0",
+  "loguru>=0.7.3",
+  "ipython>=9.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff",
+  "basedpyright",
+  "pytest>=7.0.0",
+  "pytest-asyncio>=0.21.0",
+  "pytest-cov>=4.0.0",
+]
+
+
+[tool.ruff.lint]
+# select = ["E4", "E7", "E9", "F", "D", "W"]
+select = ["TID251"]
+ignore = ["F", "D100", "D101", "D102", "D103", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 88
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"logging" = { msg = "use loguru instead" }
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+reportMissingImports = false
+exclude = ["tests", ".venv"]
+include = ["src"]
+
+[dependency-groups]
+dev = ["pytest>=8.4.1", "pytest-asyncio>=1.0.0", "pytest-cov>=6.2.1"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::RuntimeWarning",
+]

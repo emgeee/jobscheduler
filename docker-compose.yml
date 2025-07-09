@@ -1,0 +1,145 @@
+x-develop-scheduler: &develop-scheduler
+  watch:
+    - action: sync
+      path: ./src/scheduler/
+      target: /app/src/scheduler
+    - action: sync
+      path: ./src/shared/
+      target: /app/src/shared
+
+x-develop-executor: &develop-executor
+  watch:
+    - action: sync+restart
+      path: ./src/executor/
+      target: /app/src/executor
+    - action: sync+restart
+      path: ./src/shared/
+      target: /app/src/shared
+
+x-env-common: &env-common
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  SCHEDULER_RELOAD: "true"
+
+x-docker-mount: &docker-mount
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  # Required for scheduler to access MacOSX docker desktop daemon
+  user: root
+
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data:/data
+
+  scheduler1:
+    image: jobscheduler
+    develop:
+      <<: *develop-scheduler
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *env-common
+      SCHEDULER_HOST: 0.0.0.0
+      SCHEDULER_PORT: "8000"
+      SCHEDULER_ID: scheduler-1
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.scheduler"]
+
+  scheduler2:
+    image: jobscheduler
+    develop:
+      <<: *develop-scheduler
+    ports:
+      - "8001:8001"
+    environment:
+      <<: *env-common
+      SCHEDULER_HOST: 0.0.0.0
+      SCHEDULER_PORT: "8001"
+      SCHEDULER_ID: scheduler-2
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.scheduler"]
+
+  scheduler3:
+    image: jobscheduler
+    develop:
+      <<: *develop-scheduler
+    ports:
+      - "8002:8002"
+    environment:
+      <<: *env-common
+      SCHEDULER_HOST: 0.0.0.0
+      SCHEDULER_PORT: "8002"
+      SCHEDULER_ID: scheduler-3
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.scheduler"]
+
+  executor1:
+    image: jobscheduler
+    <<: *docker-mount
+    develop:
+      <<: *develop-executor
+    environment:
+      <<: *env-common
+      EXECUTOR_ID: executor_1
+      EXECUTOR_CPUS: 2.0
+      EXECUTOR_MEMORY: 1024
+      EXECUTOR_GPUS: 0
+      EXECUTOR_IP_ADDRESS: 192.168.0.1
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.executor"]
+
+  executor2:
+    image: jobscheduler
+    <<: *docker-mount
+    develop:
+      <<: *develop-executor
+    environment:
+      <<: *env-common
+      EXECUTOR_ID: executor_2
+      EXECUTOR_CPUS: 1.0
+      EXECUTOR_MEMORY: 1024
+      EXECUTOR_GPUS: 0
+      EXECUTOR_IP_ADDRESS: 192.168.0.2
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.executor"]
+
+  executor3:
+    image: jobscheduler
+    <<: *docker-mount
+    develop:
+      <<: *develop-executor
+    environment:
+      <<: *env-common
+      EXECUTOR_ID: executor_3
+      EXECUTOR_CPUS: 4.0
+      EXECUTOR_MEMORY: 4096
+      EXECUTOR_GPUS: 2
+      EXECUTOR_GPU_TYPE: nvidia-t4
+      EXECUTOR_IP_ADDRESS: 192.168.0.3
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["-m", "src.executor"]
+
+volumes:
+  redis_data:
